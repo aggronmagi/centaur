@@ -1,0 +1,90 @@
+#+startup: content
+#+title: 自定义配置
+
+* 自动保存
+#+begin_src emacs-lisp
+(require 'auto-save)
+(auto-save-enable)
+;; quietly sav
+(setq auto-save-silent t)
+;; ;; automatically delete spaces at the end of the line when saving
+;; (setq auto-save-delete-trailing-whitespace t)
+;; The idle seconds to auto save file.
+(setq auto-save-idle 10)
+#+end_src
+
+* 翻译
+#+begin_src emacs-lisp
+  ;; google 翻译
+  (use-package go-translate
+    :ensure t
+    :config
+    (defun aggron/trim-translate-text (text)
+      (string-join (split-string (string-trim text)) " "))
+    (defun aggron/go-translate-current-text ()
+      "Get current text under cursor, selection or word."
+      (cond ((eq major-mode 'pdf-view-mode)
+             (if (pdf-view-active-region-p)
+                 (car (pdf-view-active-region-text))))
+            ((use-region-p)
+             (aggron/trim-translate-text (buffer-substring-no-properties (region-beginning) (region-end))))
+            (t (current-word t t))))
+    (setq go-translate-base-url "https://translate.google.com"
+          go-translate-extra-directions '(("en" . "zh-CN"))
+          go-translate-target-language "en"
+          go-translate-local-language "zh-CN"
+          go-translate-buffer-follow-p t
+          go-translate-inputs-function #'go-translate-inputs-current-or-prompt
+          go-translate-token-current (cons 430675 2721866130)
+          go-translate-text-function #'aggron/go-translate-current-text
+          )
+    :bind
+    (:map global-map
+     ("C-c e y" . 'go-translate-popup-current)
+     ("C-c y" . 'go-translate)
+     )
+    )
+  ;; 插入翻译文字
+  (require 'insert-translated-name)
+  (global-set-key (kbd "C-c e e") 'insert-translated-name-insert-original-translation)
+  (global-set-key (kbd "C-c e v") 'insert-translated-name-insert-with-camel)
+  (global-set-key (kbd "C-c e u") 'insert-translated-name-insert-with-underline)
+  (global-set-key (kbd "C-c e r") 'insert-translated-name-replace)
+  ;; ;; 写英文帮助
+  ;; (require 'company-english-helper)
+  ;; (global-set-key (kbd "C-c e h") 'toggle-company-english-helper)
+#+end_src
+
+* org
+#+begin_src emacs-lisp
+
+  (setq org-agenda-files '("~/org/work/" "~/org/knowledge/"))
+  ;; 设置 org-capture
+  (setq org-capture-templates
+        '(
+          ;; 工作相关记录
+          ;; ("w" "工作相关") - 暂不分组
+          ("t" "工作任务" entry
+           (file+olp "~/org/work/work.org" "临时记录" "任务")
+           "*** TODO %^{标题} :task:\n %?\n%U\n")
+          ("b" "BUG记录" entry
+           (file+olp "~/org/work/work.org" "临时记录" "BUG")
+           "*** TODO %^{标题} :bug:\n %?\n%U\n")
+          ("r" "工作备忘" entry
+           (file+olp "~/org/work/work.org" "备忘录")
+           "** %^{标题}\n %?\n%U\n")
+          ("p" "账号密码" entry
+           (file+olp "~/org/work/note.org" "账号密码")
+           "** %^{标题}\n  %?\n%U\n")
+          ("d" "文档记录" entry
+           (file+olp "~/org/work/note.org" "文档")
+           "** %^{标题}\n %?\n")
+          )
+        )
+
+  (require 'aggron-work)
+  (setq aggron-work-file-title '(concat "#+startup: showall\n"
+                                                                     "#+title: " (format-time-string "%Y-%m-%d记录\n")
+                                                                     "* 会议记录\n* BUG分析\n"))
+
+#+end_src
