@@ -25,10 +25,12 @@
 
 ;;; Commentary:
 ;;
-;; Define constants.
+;; Define constants. 常量定义.
 ;;
 
 ;;; Code:
+
+;;; centaur 定义常量
 
 (defconst centaur-homepage
   "https://github.com/seagle0128/.emacs.d"
@@ -51,6 +53,7 @@ Put private configurations to override defaults here.")
 Put private configurations to override defaults here.
 Loaded by `org-babel-load-file'.")
 
+;; emacs 系统环境常量 
 (defconst sys/win32p
   (eq system-type 'windows-nt)
   "Are we running on a WinTel system?")
@@ -91,6 +94,7 @@ Loaded by `org-babel-load-file'.")
   (string-equal "root" (getenv "USER"))
   "Are you using ROOT user?")
 
+;; emacs 版本常量 
 (defconst emacs/>=25p
   (>= emacs-major-version 25)
   "Emacs is 25 or above.")

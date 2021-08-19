@@ -110,6 +110,7 @@
             (funcall fn cmd arg))))
       (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)))
 
+  ;; 更好的排序和过滤
   ;; Better sorting and filtering
   (use-package company-prescient
     :init (company-prescient-mode 1))

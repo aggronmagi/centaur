@@ -76,6 +76,7 @@ Same as `replace-string C-q C-m RET RET'."
     (while (search-forward "\r" nil :noerror)
       (replace-match ""))))
 
+;; 恢复buffer
 ;; File and buffer
 (defun revert-this-buffer ()
   "Revert the current buffer."
@@ -84,6 +85,7 @@ Same as `replace-string C-q C-m RET RET'."
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
+;; 删除当前buffer.并删除文件
 (defun delete-this-file ()
   "Delete the current file, and kill the buffer."
   (interactive)
@@ -94,6 +96,7 @@ Same as `replace-string C-q C-m RET RET'."
     (delete-file (buffer-file-name))
     (kill-this-buffer)))
 
+;; 重命名buffer的文件名
 (defun rename-this-file (new-name)
   "Renames both current buffer and file it's visiting to NEW-NAME."
   (interactive "sNew name: ")
@@ -107,6 +110,7 @@ Same as `replace-string C-q C-m RET RET'."
       (set-visited-file-name new-name)
       (rename-buffer new-name))))
 
+;;使用browse-url 打开昂奇案buffer文件. 用于html ???
 (defun browse-this-file ()
   "Open the current file as a URL using `browse-url'."
   (interactive)
@@ -116,6 +120,7 @@ Same as `replace-string C-q C-m RET RET'."
         (error "Cannot open tramp file")
       (browse-url (concat "file://" file-name)))))
 
+;; 复制当前buffer的文件名到kill-ring. 如果是dired模式.复制路径
 (defun copy-file-name ()
   "Copy the current buffer file name to the clipboard."
   (interactive)
@@ -127,6 +132,7 @@ Same as `replace-string C-q C-m RET RET'."
         (message "Copied '%s'" filename))
     (warn "Current buffer is not attached to a file!")))
 
+;; 没起作用 ???
 ;; Browse URL
 (defun centaur-webkit-browse-url (url &optional pop-buffer new-session)
   "Browse url with webkit and switch or pop to the buffer.
@@ -146,6 +152,7 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
             (pop-to-buffer buf)
           (switch-to-buffer buf))))))
 
+;;??? xwidget 未安装???
 (defun centaur-find-pdf-file (&optional url)
   "Find a PDF file via URL and render by `pdf.js'."
   (interactive "f")
@@ -169,6 +176,8 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
   (load user-init-file))
 (defalias 'centaur-reload-init-file #'reload-init-file)
 
+
+;; 打开centaur网站
 ;; Browse the homepage
 (defun browse-homepage ()
   "Browse the Github page of Centaur Emacs."
@@ -186,13 +195,14 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
   (find-file custom-file)
   (find-file-other-window centaur-custom-post-file))
 
-;; Misc
+;; Misc 打开 *scratch* 缓冲区
 (defun create-scratch-buffer ()
   "Create a scratch buffer."
   (interactive)
   (switch-to-buffer (get-buffer-create "*scratch*"))
   (lisp-interaction-mode))
 
+;; 将文件用utf保存
 (defun save-buffer-as-utf8 (coding-system)
   "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
   (interactive "zCoding system for visited file (default nil):")
@@ -205,6 +215,7 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
   (interactive)
   (save-buffer-as-utf8 'gbk))
 
+;; 重新编译elpa目录
 (defun recompile-elpa ()
   "Recompile packages in elpa directory. Useful if you switch Emacs versions."
   (interactive)
@@ -212,6 +223,7 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
       (async-byte-recompile-directory package-user-dir)
     (byte-recompile-directory package-user-dir 0 t)))
 
+;; 重新编译site-lisp目录
 (defun recompile-site-lisp ()
   "Recompile packages in site-lisp directory."
   (interactive)
@@ -220,12 +232,14 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
         (async-byte-recompile-directory temp-dir)
       (byte-recompile-directory temp-dir 0 t))))
 
+;; 是否显示icons
 (defun icons-displayable-p ()
   "Return non-nil if `all-the-icons' is displayable."
   (and centaur-icon
        (display-graphic-p)
        (require 'all-the-icons nil t)))
 
+;; 赋值语句. 如果no-save 不是nil, 将修改的变量保存到custom-file中.
 (defun centaur-set-variable (variable value &optional no-save)
   "Set the VARIABLE to VALUE, and return VALUE.
 
@@ -243,6 +257,7 @@ Save to `custom-file' if NO-SAVE is nil."
       (write-region nil nil custom-file)
       (message "Saved %s (%s) to %s" variable value custom-file))))
 
+;; 子模式 - 辅助阅读(放大文字)
 (define-minor-mode centaur-read-mode
   "Minor Mode for better reading experience."
   :init-value nil
@@ -277,6 +292,7 @@ Save to `custom-file' if NO-SAVE is nil."
   (message "Set package archives to `%s'" archives))
 (defalias 'centaur-set-package-archives #'set-package-archives)
 
+;; 测试各个melpa速度
 ;; Refer to https://emacs-china.org/t/elpa/11192
 (defun centaur-test-package-archives (&optional no-chart)
   "Test connection speed of all package archives and display on chart.
@@ -348,6 +364,8 @@ This issue has been addressed in 28."
           (message "Updating configurations...done"))
       (message "\"%s\" doesn't exist" temp-dir))))
 (defalias 'centaur-update-config #'update-config)
+
+
 
 (defvar centaur--updating-packages nil)
 (defun update-packages (&optional force sync)

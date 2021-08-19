@@ -20,13 +20,25 @@
 ;; (setq centaur-lsp-format-on-save-ignore-modes '(c-mode c++-mode)) ; Ignore format on save for some languages
 (setq centaur-chinese-calendar t)              ; Use Chinese calendar or not: t or nil
 ;; (setq centaur-prettify-symbols-alist nil)      ; Alist of symbol prettifications. Nil to use font supports ligatures.
-(setq centaur-prettify-org-symbols-alist nil)  ; Alist of symbol prettifications for `org-mode'
+;; (setq centaur-prettify-org-symbols-alist nil)  ; Alist of symbol prettifications for `org-mode'
 
 ;; For Emacs devel
 ;; (setq package-user-dir (locate-user-emacs-file (format "elpa-%s" emacs-major-version)))
 ;; (setq desktop-base-file-name (format ".emacs-%s.desktop" emacs-major-version))
 ;; (setq desktop-base-lock-name (format ".emacs-%s.desktop.lock" emacs-major-version))
 
+;; go-mode 保存时候格式化,会导致emacs卡死. 因为我开了auto-save插件.
+(setq centaur-lsp-format-on-save-ignore-modes
+      '(c-mode c++-mode python-mode go-mode))
+
+;; 只保留这几个吧. 其它的看着怪怪的.
+(setq centaur-prettify-symbols-alist
+      '(("lambda" . ?λ)
+        ("/=" . ?≠)
+        ("!=" . ?≠)
+        ("==" . ?≡)
+        ("<=" . ?≤)
+        (">=" . ?≥)))
 ;; Fonts
 (when (display-graphic-p)
   ;; Set default font

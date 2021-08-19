@@ -30,11 +30,13 @@
 
 ;;; Code:
 
+;; centaur 提供的自定义配置
 (defgroup centaur nil
   "Centaur Emacs customization."
   :group 'convenience
   :link '(url-link :tag "Homepage" "https://github.com/seagle0128/.emacs.d"))
 
+;; logo 配置
 (defcustom centaur-logo (expand-file-name
                          (if (display-graphic-p) "logo.png" "banner.txt")
                          user-emacs-directory)
@@ -42,6 +44,7 @@
   :group 'centaur
   :type 'string)
 
+;; 用户名,邮件
 (defcustom centaur-full-name user-full-name
   "Set user full name."
   :group 'centaur
@@ -52,11 +55,13 @@
   :group 'centaur
   :type 'string)
 
+;; org 目录
 (defcustom centaur-org-directory (expand-file-name "~/org/")
   "Set org directory."
   :group 'centaur
   :type 'string)
 
+;; 代理 设置
 (defcustom centaur-proxy "127.0.0.1:1087"
   "Set HTTP/HTTPS proxy."
   :group 'centaur
@@ -67,16 +72,19 @@
   :group 'centaur
   :type 'string)
 
+;; 开启server设置
 (defcustom centaur-server t
   "Enable `server-mode' or not."
   :group 'centaur
   :type 'boolean)
 
+;; 是否显示icon
 (defcustom centaur-icon (or (display-graphic-p) (daemonp))
   "Display icons or not."
   :group 'centaur
   :type 'boolean)
 
+;; 安装源地址配置
 ;; Emacs Lisp Package Archive (ELPA)
 ;; @see https://github.com/melpa/melpa and https://elpa.emacs-china.org/.
 (defcustom centaur-package-archives-alist
@@ -109,7 +117,7 @@
   :type '(alist :key-type (symbol :tag "Archive group name")
                 :value-type (alist :key-type (string :tag "Archive name")
                                    :value-type (string :tag "URL or directory name"))))
-
+;; 默认安装源 melpa
 (defcustom centaur-package-archives 'melpa
   "Set package archives from which to fetch."
   :group 'centaur
@@ -126,6 +134,7 @@
                               name)))
                     centaur-package-archives-alist)))
 
+;; 皮肤列表
 (defcustom centaur-theme-alist
   '((default . doom-one)
     (pro     . doom-monokai-pro)
@@ -140,6 +149,7 @@
   :type '(alist :key-type (symbol :tag "Theme")
                 :value-type (symbol :tag "Internal theme")))
 
+;; 自动切换皮肤配置
 (defcustom centaur-auto-themes '(("8:00"  . doom-one-light)
 				                 ("19:00" . doom-one))
   "List of themes mapped to the time they should be loaded.
@@ -153,6 +163,7 @@ For example:
   :type '(alist :key-type (string :tag "Time")
                 :value-type (symbol :tag "Theme")))
 
+;; mac 添加系统皮肤 ?? 我从源码安装的emacs. 没有 `ns-system-appearance' ???
 (when (boundp 'ns-system-appearance)
   (defcustom centaur-system-themes '((light . doom-one-light)
 				                     (dark  . doom-one))
@@ -161,6 +172,7 @@ For example:
     :type '(alist :key-type (symbol :tag "Appearance")
                   :value-type (symbol :tag "Theme"))))
 
+;; 皮肤设置. 具体使用哪个皮肤
 (defcustom centaur-theme 'default
   "The color theme."
   :group 'centaur
@@ -178,24 +190,27 @@ For example:
                     centaur-theme-alist)
                  symbol))
 
+;; 自动完成 如何显示
 (defcustom centaur-completion-style 'childframe
   "Completion display style."
   :group 'centaur
   :type '(choice (const :tag "Minibuffer" minibuffer)
                  (const :tag "Child Frame" childframe)))
-
+;;启动时候 是否显示 dashboard
 (defcustom centaur-dashboard (not (daemonp))
   "Use dashboard at startup or not.
 If Non-nil, use dashboard, otherwise will restore previous session."
   :group 'centaur
   :type 'boolean)
 
+;;是否启动时候恢复frame位置信息
 (defcustom centaur-restore-frame-geometry t
   "Restore the frame's geometry at startup.
 If Non-nil, save and restore the frame's geometry."
   :group 'centaur
   :type 'boolean)
 
+;; 语言服务器后配置.默认lsp
 (defcustom centaur-lsp 'lsp-mode
   "Set language server.
 
@@ -208,6 +223,7 @@ nil means disabled."
                  (const :tag "Eglot" eglot)
                  (const :tag "Disable" nil)))
 
+;; 哪种语言保存时候忽略格式化
 (defcustom centaur-lsp-format-on-save-ignore-modes
   '(c-mode c++-mode python-mode markdown-mode)
   "The modes that don't auto format and organize imports while saving the buffers.
@@ -216,11 +232,13 @@ nil means disabled."
   :group 'centaur
   :type '(repeat (symbol :tag "Major-Mode")))
 
+;; 中文日历
 (defcustom centaur-chinese-calendar nil
   "Use Chinese calendar or not."
   :group 'centaur
   :type 'boolean)
 
+;; 符号替换 比如 代码当中有lambda 会显示成λ
 (defcustom centaur-prettify-symbols-alist
   '(("lambda" . ?λ)
     ("<-" . ?←)
@@ -245,6 +263,7 @@ Nil to use font supports ligatures."
   :group 'centaur
   :type '(alist :key-type string :value-type (choice character sexp)))
 
+;; org显示替换
 (defcustom centaur-prettify-org-symbols-alist
   '(("[ ]" . ?☐)
     ("[X]" . ?☑)
@@ -271,6 +290,7 @@ Nil to use font supports ligatures."
   :group 'centaur
   :type '(alist :key-type string :value-type (choice character sexp)))
 
+;; 加载自定义文件.
 ;; Load `custom-file'
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 

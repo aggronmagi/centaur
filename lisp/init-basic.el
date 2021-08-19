@@ -115,11 +115,12 @@
   :if centaur-server
   :hook (after-init . server-mode))
 
-;; History
+;; 保存打开文件中的cursor等位置
 (use-package saveplace
   :ensure nil
   :hook (after-init . save-place-mode))
 
+;; 最近打开的文件
 (use-package recentf
   :ensure nil
   :bind (("C-x C-r" . recentf-open-files))
