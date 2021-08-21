@@ -4,15 +4,15 @@
 * 自动保存
 #+begin_src emacs-lisp
   (require 'auto-save)
-  (auto-save-enable)
   ;; quietly sav
-  (setq auto-save-silent nil)
+  (setq auto-save-silent t)
   ;; automatically delete spaces at the end of the line when saving
   ;; (setq auto-save-delete-trailing-whitespace t)
   ;; The idle seconds to auto save file.
-  (setq auto-save-idle 10)
+  (setq auto-save-idle 3)
+  ;; 开启自动保存
+  (auto-save-enable)
 #+end_src
-
 * 翻译
 #+begin_src emacs-lisp
   ;; google 翻译

@@ -103,6 +103,8 @@
 (set-terminal-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (modify-coding-system-alist 'process "*" 'utf-8)
+;; 修复vterm中文显示异常
+(setenv "LANG" "zh_CN.UTF-8")
 
 ;; Environment
 (when (or sys/mac-x-p sys/linux-x-p (daemonp))
