@@ -37,11 +37,22 @@
   :bind (:map go-mode-map
          ("C-c R" . go-remove-unused-imports)
          ("<f1>" . godoc-at-point))
-  :init (setq godoc-at-point-function #'godoc-gogetdoc)
+  :init
+  (setq godoc-at-point-function #'godoc-gogetdoc)
+  ;; (defun go-plain-gopath ()
+  ;;   "reset plain go path")
   :config
+  ;; (defun go-plain-gopath ()
+  ;;   "reset plain go path")
+  ;;(go-reset-gopath)
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
+
+  ;; golang 禁用注释补全
+  ;;(setf (lsp--client-completion-in-comments? (gethash 'lsp-clients gopls)) nil)
+
+  ;;(setf (lsp--client-completion-in-comments? (gethash 'gopls lsp-clients)) nil)
 
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/gopls"

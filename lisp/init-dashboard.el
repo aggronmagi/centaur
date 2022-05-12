@@ -66,10 +66,10 @@
        ("C-n" next-line "next line")
        ("C-p" previous-line "previous  line"))
       "Misc"
-      (("<f2>" open-dashboard "open" :exit t)
+      (("s-<f2>" open-dashboard "open" :exit t)
        ("g" dashboard-refresh-buffer "refresh" :exit t)
        ("Q" quit-dashboard "quit" :exit t))))
-    :bind (("<f2>" . open-dashboard)
+    :bind (("s-<f2>" . open-dashboard)
            :map dashboard-mode-map
            ("H" . browse-homepage)
            ("R" . restore-previous-session)

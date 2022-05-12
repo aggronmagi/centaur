@@ -41,7 +41,7 @@
                treemacs-fringe-indicator-mode
                treemacs-git-mode)
     :custom-face
-    (cfrs-border-color ((t (:background ,(face-foreground 'font-lock-comment-face nil t)))))
+    ;;(cfrs-border-color ((t (:background ,(face-foreground 'font-lock-comment-face nil t)))))
     :bind (([f8]        . treemacs)
            ("M-0"       . treemacs-select-window)
            ("C-x 1"     . treemacs-delete-other-windows)
@@ -52,6 +52,11 @@
            ("C-x t M-t" . treemacs-find-tag)
            :map treemacs-mode-map
            ([mouse-1]   . treemacs-single-click-expand-action))
+
+    (:map treemacs-mode-map
+     ("j" . treemacs-next-line)
+     ("k" . treemacs-previous-line)
+     )
     :config
     (setq treemacs-collapse-dirs           (if treemacs-python-executable 3 0)
           treemacs-missing-project-action  'remove
@@ -83,11 +88,12 @@
               magit-post-unstage)
              . treemacs-magit--schedule-update))
 
-    (use-package treemacs-persp
-      :after persp-mode
-      :demand
-      :functions treemacs-set-scope-type
-      :config (treemacs-set-scope-type 'Perspectives))))
+    ;; (use-package treemacs-persp
+    ;;   :after persp-mode
+    ;;   :demand
+    ;;   :functions treemacs-set-scope-type
+    ;;   :config (treemacs-set-scope-type 'Perspectives))
+    ))
 
 (provide 'init-treemacs)
 

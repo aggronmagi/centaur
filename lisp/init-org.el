@@ -65,7 +65,8 @@
      ("p" (hot-expand "<s" "perl") "perl")
      ("r" (hot-expand "<s" "ruby") "ruby")
      ("S" (hot-expand "<s" "sh") "sh")
-     ("g" (hot-expand "<s" "go :imports '\(\"fmt\"\)") "golang"))
+     ("j" (hot-expand "<s" "json") "json")
+     ("g" (hot-expand "<s" "go") "golang"))
     "Misc"
     (("u" (hot-expand "<s" "plantuml :file CHANGE.png") "plantuml")
      ("Y" (hot-expand "<s" "ipython :session :exports both :results raw drawer\n$0") "ipython")
@@ -91,12 +92,13 @@
                              (push centaur-prettify-org-symbols-alist prettify-symbols-alist)
                            (setq prettify-symbols-alist centaur-prettify-org-symbols-alist)))
                        (prettify-symbols-mode 1)))
-         (org-indent-mode . (lambda()
-                              (diminish 'org-indent-mode)
-                              ;; WORKAROUND: Prevent text moving around while using brackets
-                              ;; @see https://github.com/seagle0128/.emacs.d/issues/88
-                              (make-variable-buffer-local 'show-paren-mode)
-                              (setq show-paren-mode nil))))
+         ;; (org-indent-mode . (lambda()
+         ;;                      (diminish 'org-indent-mode)
+         ;;                      ;; WORKAROUND: Prevent text moving around while using brackets
+         ;;                      ;; @see https://github.com/seagle0128/.emacs.d/issues/88
+         ;;                      (make-variable-buffer-local 'show-paren-mode)
+         ;;                      (setq show-paren-mode nil)))
+         )
   :config
   ;; For hydra
   (defun hot-expand (str &optional mod)

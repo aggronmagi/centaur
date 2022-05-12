@@ -9,56 +9,197 @@
   ;; automatically delete spaces at the end of the line when saving
   ;; (setq auto-save-delete-trailing-whitespace t)
   ;; The idle seconds to auto save file.
-  (setq auto-save-idle 3)
+  (setq auto-save-idle 1)
   ;; 开启自动保存
   (auto-save-enable)
 #+end_src
 * 翻译
 #+begin_src emacs-lisp
+  ;; ;; google 翻译
+  ;; (use-package go-translate
+  ;;   :ensure t
+  ;;   :config
+  ;;   (defun aggron/trim-translate-text (text)
+  ;;     (string-join (split-string (string-trim text)) " "))
+  ;;   (defun aggron/go-translate-current-text ()
+  ;;     "Get current text under cursor, selection or word."
+  ;;     (cond ((eq major-mode 'pdf-view-mode)
+  ;;            (if (pdf-view-active-region-p)
+  ;;                (car (pdf-view-active-region-text))))
+  ;;           ((use-region-p)
+  ;;            (aggron/trim-translate-text (buffer-substring-no-properties (region-beginning) (region-end))))
+  ;;           (t (current-word t t))))
+  ;;   (setq go-translate-base-url "https://translate.google.com"
+  ;;         go-translate-extra-directions '(("en" . "zh-CN"))
+  ;;         go-translate-target-language "en"
+  ;;         go-translate-local-language "zh-CN"
+  ;;         go-translate-buffer-follow-p t
+  ;;         go-translate-inputs-function #'go-translate-inputs-current-or-prompt
+  ;;         go-translate-token-current (cons 430675 2721866130)
+  ;;         go-translate-text-function #'aggron/go-translate-current-text
+  ;;         )
+  ;;   :bind
+  ;;   (:map global-map
+  ;;    ("C-c e y" . 'go-translate-popup-current)
+  ;;    ("C-c y" . 'go-translate)
+  ;;    )
+  ;;   )
+  ;; ;; 插入翻译文字
+  ;; (require 'insert-translated-name)
+  ;; (global-set-key (kbd "C-c e e") 'insert-translated-name-insert-original-translation)
+  ;; (global-set-key (kbd "C-c e v") 'insert-translated-name-insert-with-camel)
+  ;; (global-set-key (kbd "C-c e u") 'insert-translated-name-insert-with-underline)
+  ;; (global-set-key (kbd "C-c e r") 'insert-translated-name-replace)
+  ;; ;; 写英文帮助
+  ;; (require 'company-english-helper)
+  ;; (global-set-key (kbd "C-c e h") 'toggle-company-english-helper)
+
   ;; google 翻译
   (use-package go-translate
     :ensure t
     :config
-    (defun aggron/trim-translate-text (text)
-      (string-join (split-string (string-trim text)) " "))
+    (setq gts-translate-list '(("en" "zh")))
+    ;; 配置默认的 translator
+    ;; 这些配置将被 gts-do-translate 命令使用
+    (setq gts-default-translator
+          (gts-translator
+           :picker ; 用于拾取初始文本、from、to，只能配置一个
+           (gts-noprompt-picker)
+           ;;(gts-noprompt-picker :texter (gts-whole-buffer-texter))
+           ;;(gts-prompt-picker)
+           ;;(gts-prompt-picker :single t)
+           ;; (gts-prompt-picker :texter (gts-current-or-selection-texter) :single t)
+
+           :engines ; 翻译引擎，可以配置多个。另外可以传入不同的 Parser 从而使用不同样式的输出
+           (list
+            (gts-bing-engine)
+            ;;(gts-google-engine)
+            ;;(gts-google-rpc-engine)
+            ;;(gts-deepl-engine :auth-key [YOUR_AUTH_KEY] :pro nil)
+            (gts-google-engine :parser (gts-google-summary-parser))
+            ;;(gts-google-engine :parser (gts-google-parser))
+            ;;(gts-google-rpc-engine :parser (gts-google-rpc-summary-parser))
+            (gts-google-rpc-engine :parser (gts-google-rpc-parser))
+            )
+
+           :render ; 渲染器，只能一个，用于输出结果到指定目标。如果使用 childframe 版本的，需自行安装 posframe
+
+           (gts-buffer-render)
+           ;;(gts-posframe-pop-render)
+           ;;(gts-posframe-pop-render :backcolor "#333333" :forecolor "#ffffff")
+           ;;(gts-posframe-pin-render)
+           ;;(gts-posframe-pin-render :position (cons 1200 20))
+           ;;(gts-posframe-pin-render :width 80 :height 25 :position (cons 1000 20) :forecolor "#ffffff" :backcolor "#111111")
+           ;;(gts-kill-ring-render)
+           ))
+
+    ;; 用于代码注释翻译 去除注释token。
+    (defun aggron/trim-string (text)
+      "trim newline"
+      ;; (rx (or "//" "--" "/*" "*/" "^#" ";;"))
+      (string-join (split-string (replace-regexp-in-string "\\(?:\\*/\\|--\\|/[*/]\\|;;\\|\\^#\\)" "" (string-trim text))) " "))
+    ;; 待翻译的文本
     (defun aggron/go-translate-current-text ()
       "Get current text under cursor, selection or word."
       (cond ((eq major-mode 'pdf-view-mode)
              (if (pdf-view-active-region-p)
                  (car (pdf-view-active-region-text))))
             ((use-region-p)
-             (aggron/trim-translate-text (buffer-substring-no-properties (region-beginning) (region-end))))
+             (aggron/trim-string (buffer-substring-no-properties (region-beginning) (region-end))))
             (t (current-word t t))))
-    (setq go-translate-base-url "https://translate.google.com"
-          go-translate-extra-directions '(("en" . "zh-CN"))
-          go-translate-target-language "en"
-          go-translate-local-language "zh-CN"
-          go-translate-buffer-follow-p t
-          go-translate-inputs-function #'go-translate-inputs-current-or-prompt
-          go-translate-token-current (cons 430675 2721866130)
-          go-translate-text-function #'aggron/go-translate-current-text
-          )
+
+    ;; go-translate 定制texter
+    (defclass aggron/gts-code-comment-texter (gts-texter) ())
+    ;; go-translate texter gts-text 实现
+    (cl-defmethod gts-text ((_ aggron/gts-code-comment-texter))
+      (aggron/go-translate-current-text))
+
+    ;; 代码注释翻译tranlater
+    (defvar aggron/translate-code-comment-tranlater
+      (gts-translator
+       :picker (gts-noprompt-picker
+                :texter (aggron/gts-code-comment-texter))
+       :engines (list
+                 (gts-google-engine)
+                 (gts-bing-engine))
+       ;; render
+       :render (gts-buffer-render)
+       ))
+
+    ;; 翻译代码注释命令。去除"//"等注释token和换行。
+    (defun aggron/translate-code-comment-command ()
+      (interactive)
+      (gts-translate aggron/translate-code-comment-tranlater))
+
+    ;; 将翻译放入剪切板
+    (defvar aggron/translate-copy-tranlater
+      (gts-translator
+       :picker (gts-noprompt-picker
+                :texter (aggron/gts-code-comment-texter))
+       :engines (list
+                 (gts-bing-engine)
+                 (gts-google-engine))
+       :render (gts-kill-ring-render)
+       ))
+
+    (defun aggron/translate-comment-copy-command()
+      (interactive)
+      (gts-translate aggron/translate-copy-tranlater))
+    ;; 插入翻译文字
+    (require 'insert-translated-name)
+    ;; (global-set-key (kbd "C-c e e") 'insert-translated-name-insert-original-translation)
+    ;; (global-set-key (kbd "C-c e v") 'insert-translated-name-insert-with-camel)
+    ;; (global-set-key (kbd "C-c e u") 'insert-translated-name-insert-with-underline)
+    ;; (global-set-key (kbd "C-c e r") 'insert-translated-name-replace)
+
+
+    ;; 写英文帮助
+    ;; (require 'company-english-helper)
+    ;; (global-set-key (kbd "C-c e h") 'toggle-company-english-helper)
+
     :bind
     (:map global-map
-     ("C-c e y" . 'go-translate-popup-current)
-     ("C-c y" . 'go-translate)
+     ("C-c y" . aggron/translate-code-comment-command)
+     ("C-c e y" . gts-do-translate)
+     ("C-c e c" . aggron/translate-comment-copy-command)
+     ;;("C-c e h" . toggle-company-english-helper)
+     ("C-c e e" . insert-translated-name-insert-original-translation)
+     ("C-c e v" . insert-translated-name-insert-with-camel)
+     ("C-c e u" . insert-translated-name-insert-with-underline)
+     ("C-c e r" . insert-translated-name-replace)
      )
     )
-  ;; 插入翻译文字
-  (require 'insert-translated-name)
-  (global-set-key (kbd "C-c e e") 'insert-translated-name-insert-original-translation)
-  (global-set-key (kbd "C-c e v") 'insert-translated-name-insert-with-camel)
-  (global-set-key (kbd "C-c e u") 'insert-translated-name-insert-with-underline)
-  (global-set-key (kbd "C-c e r") 'insert-translated-name-replace)
-  ;; ;; 写英文帮助
-  ;; (require 'company-english-helper)
-  ;; (global-set-key (kbd "C-c e h") 'toggle-company-english-helper)
+
+  ;; 有道词典
+  ;; (use-package youdao-dictionary
+  ;;   :ensure t
+  ;;   :bind
+  ;;   (:map global-map
+  ;; 		;; 会自动隐藏. 但是对于查看长文档翻译时候,不太方便
+  ;; 	;; ("C-c y" . youdao-dictionary-search-at-point-tooltip)
+  ;; 	;; 不会移动隐藏.但是有操作会隐藏
+  ;; 	("C-c y" . youdao-dictionary-search-at-point+))
+  ;;   :config
+  ;;   ;; Enable Cache
+  ;;   (setq url-automatic-caching t)
+  ;;   ;; Integrate with popwin-el (https://github.com/m2ym/popwin-el)
+  ;;   ;; (push "*Youdao Dictionary*" popwin:special-display-config)
+
+  ;;   ;; Set file path for saving search history
+  ;;   (setq youdao-dictionary-search-history-file "~/.emacs.d/.youdao")
+
+  ;;   ;; Enable Chinese word segmentation support (支持中文分词)
+  ;;   ;; (setq youdao-dictionary-use-chinese-word-segmentation t)
+  ;;   )
+
 #+end_src
 
 * org
 #+begin_src emacs-lisp
 
   (setq org-agenda-files '("~/org/work/" "~/org/knowledge/"))
+
+
   ;; 设置 org-capture
   (setq org-capture-templates
         '(
@@ -70,7 +211,7 @@
           ("b" "BUG记录" entry
            (file+olp "~/org/work/work.org" "临时记录" "BUG")
            "*** TODO %^{标题} :bug:\n %?\n%U\n")
-          ("r" "工作备忘" entry
+          ("r" "备忘信息" entry
            (file+olp "~/org/work/work.org" "备忘录")
            "** %^{标题}\n %?\n%U\n")
           ("p" "账号密码" entry
@@ -81,10 +222,92 @@
            "** %^{标题}\n %?\n")
           )
         )
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "DOING(i)" "HANGUP(h)" "|" "DONE(d)" "CANCEL(c)")
+          (sequence "⚑(T)" "🏴(I)" "❓(H)" "|" "✔(D)" "✘(C)"))
+        org-todo-keyword-faces '(("HANGUP" . warning)
+                                 ("❓" . warning))
+        org-priority-faces '((?A . error)
+                             (?B . warning)
+                             (?C . success)))
+
 
   (require 'aggron-work)
-  (setq aggron-work-file-title '(concat "#+startup: showall\n"
+  (setq aggron-work-file-title '(concat "#+startup: content\n"
                                         "#+title: " (format-time-string "%Y-%m-%d记录\n")
-                                        "* 会议记录\n* BUG分析\n"))
+                                        "* 工作记录\n* BUG分析\n"))
+  (if sys/win32p
+      (setq aggron-work-dir "d:/org/work/record/"))
+
+  (if sys/win32p
+      (progn
+        (setq org-default-notes-file (expand-file-name "d:/org/index.org"))
+        (setq org-agenda-files '("d:/org/work/" "d:/org/knowledge/"))
+        )
+    (setq org-default-notes-file (expand-file-name "~/org/index.org"))
+    (setq org-agenda-files '("~/org/work/" "~/org/knowledge/"))
+    )
+  (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
+
+  ;; brew install pandoc pandoc-citeproc librsvg python homebrew/cask/basictex
+  (use-package org-web-tools
+    :ensure t)
+  ;; 使用 org-web-tools-read-url-as-org 转换剪切板中的连接为org.并在新缓冲区中打开.
+  ;; 使用 org-web-tools-convert-links-to-page-entries	将entry中的url转换为org.并添加到当前entry下面
+
+#+end_src
+
+* jcn golang debug options
+#+begin_src elisp
+  (dap-register-debug-template "Game Server Party Unoptimized Debug"
+                               (list :type "go"
+                                     :request "launch"
+                                     :name "PartyDebug"
+                                     :mode "debug"
+                                     :program "/Users/aggron/workspace/game-server-party/src"
+                                     :buildFlags "-gcflags '-N -l' -ldflags '-X \"pkg.jcndev.com/game-framework/three-d.BaseDir=/Users/aggron/workspace/data/\"'"
+                                     :args nil
+                                     :env "CGO_ENABLED=\"0\""
+                                     :envFile nil
+                                     :workspace "/Users/aggron/workspace/game-server-party"
+                                     :cwd "/Users/aggron/workspace/game-server-party"))
+
+  (dap-register-debug-template "Gateway Unoptimized Debug"
+                               (list :type "go"
+                                     :request "launch"
+                                     :name "GatewayDebug"
+                                     :mode "debug"
+                                     :program "/Users/aggron/workspace/game-gateway/src"
+                                     :buildFlags "-gcflags '-N -l'"
+                                     :args nil
+                                     :env "CGO_ENABLED=\"0\""
+                                     :envFile nil
+                                     :workspace "/Users/aggron/workspace/game-gateway"
+                                     :cwd "/Users/aggron/workspace/game-gateway"))
+  ;;  (dap-go-setup)
+
+#+end_src
+
+* 状态栏
+#+begin_src emacs-lisp
+  ;; 在状态栏显示时间
+  (use-package time
+    :ensure nil
+    :custom ((display-time-format "[%e号 %H:%M 周%u]")
+             (display-time-use-mail-icon t))
+    :config
+    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-Parsing.html
+    (display-time-mode 1)
+    )
+#+end_src
+
+* 保存时候删除行尾空白符
+#+begin_src emacs-lisp
+  ;;  (remove-hook 'before-save-hook 'delete-trailing-whitespace t)
+#+end_src
+
+* golang 禁用注释补全
+#+begin_src elisp
+  ;;(setf (lsp--client-completion-in-comments? (gethash 'gopls lsp-clients)) nil)
 
 #+end_src

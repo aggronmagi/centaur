@@ -76,6 +76,8 @@
       (use-package solaire-mode
         :hook (after-load-theme . solaire-global-mode))
 
+      (setq-default doom-one-brighter-comments t)
+
       (use-package doom-themes
         :bind ("C-c T" . centaur-load-theme)
         :custom-face

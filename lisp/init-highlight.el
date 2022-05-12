@@ -215,8 +215,8 @@ FACE defaults to inheriting from default and highlight."
          ("C-c t o" . hl-todo-occur)
          ("C-c t i" . hl-todo-insert))
   :hook (after-init . global-hl-todo-mode)
-  :init (setq hl-todo-require-punctuation t
-              hl-todo-highlight-punctuation ":")
+  :init (setq hl-todo-require-punctuation t)
+  ;;hl-todo-highlight-punctuation ":")
   :config
   (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
     (cl-pushnew `(,keyword . ,(face-foreground 'error)) hl-todo-keyword-faces))
