@@ -34,8 +34,9 @@
 
 (use-package counsel
   :diminish ivy-mode counsel-mode
-  :bind (("C-s"   . swiper-isearch)
-         ("C-r"   . swiper-isearch-backward)
+  :bind (
+         ("C-s"   . isearch-forward)
+         ("C-r"   . isearch-backward)
          ("s-f"   . swiper)
          ("C-S-s" . swiper-all)
 
